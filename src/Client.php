@@ -11,6 +11,22 @@ declare(strict_types=1);
  */
 namespace Xin\JsonRPC\FpmClient;
 
+use Hyperf\Contract\PackerInterface;
+
 class Client
 {
+    protected $client;
+
+    protected $service;
+
+    protected $packer;
+
+    protected $formatter;
+
+    public function __construct(string $service, PackerInterface $packer)
+    {
+        $this->service = $service;
+        $this->packer = $packer;
+        $this->formatter = new DataFormatter();
+    }
 }
