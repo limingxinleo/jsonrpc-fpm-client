@@ -12,21 +12,54 @@ declare(strict_types=1);
 namespace Xin\JsonRPC\FpmClient;
 
 use Hyperf\Contract\PackerInterface;
+use Xin\JsonRPC\FpmClient\Transporter\TransporterInterface;
 
 class Client
 {
+    /**
+     * @var null|resource
+     */
     protected $client;
 
+    /**
+     * @var string
+     */
     protected $service;
 
+    /**
+     * @var PackerInterface
+     */
     protected $packer;
 
+    /**
+     * @var DataFormatter
+     */
     protected $formatter;
 
-    public function __construct(string $service, PackerInterface $packer)
+    /**
+     * @var PathGenerator
+     */
+    protected $generator;
+
+    /**
+     * @var TransporterInterface
+     */
+    protected $transporter;
+
+    public function __construct(string $service, TransporterInterface $transporter, PackerInterface $packer)
     {
         $this->service = $service;
         $this->packer = $packer;
+        $this->transporter = $transporter;
         $this->formatter = new DataFormatter();
+        $this->generator = new PathGenerator();
+    }
+
+    public function __call($name, $arguments)
+    {
+        $path = $this->generator->generate($this->service, $name);
+        $data = $this->formatter->formatRequest($path, $arguments, $id = uniqid());
+        $this->transporter->send($this->packer->pack($data));
+        return $this->transporter->recv();
     }
 }

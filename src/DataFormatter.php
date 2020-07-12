@@ -13,46 +13,14 @@ namespace Xin\JsonRPC\FpmClient;
 
 class DataFormatter
 {
-    public function formatRequest($data)
+    public function formatRequest(string $path, string $params, string $id = null)
     {
-        [$path, $params, $id] = $data;
         return [
             'jsonrpc' => '2.0',
             'method' => $path,
             'params' => $params,
             'id' => $id,
-        ];
-    }
-
-    public function formatResponse($data)
-    {
-        [$id, $result] = $data;
-        return [
-            'jsonrpc' => '2.0',
-            'id' => $id,
-            'result' => $result,
-        ];
-    }
-
-    public function formatErrorResponse($data)
-    {
-        [$id, $code, $message, $data] = $data;
-
-        if (isset($data) && $data instanceof \Throwable) {
-            $data = [
-                'class' => get_class($data),
-                'code' => $data->getCode(),
-                'message' => $data->getMessage(),
-            ];
-        }
-        return [
-            'jsonrpc' => '2.0',
-            'id' => $id ?? null,
-            'error' => [
-                'code' => $code,
-                'message' => $message,
-                'data' => $data,
-            ],
+            'data' => [],
         ];
     }
 }
