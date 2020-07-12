@@ -12,9 +12,10 @@ declare(strict_types=1);
 namespace Xin\JsonRPC\FpmClient;
 
 use Hyperf\Contract\PackerInterface;
+use Xin\JsonRPC\FpmClient\Exception\RecvFailedException;
 use Xin\JsonRPC\FpmClient\Transporter\TransporterInterface;
 
-class Client
+abstract class Client
 {
     /**
      * @var null|resource
@@ -60,6 +61,15 @@ class Client
         $path = $this->generator->generate($this->service, $name);
         $data = $this->formatter->formatRequest($path, $arguments, $id = uniqid());
         $this->transporter->send($this->packer->pack($data));
-        return $this->transporter->recv();
+        $ret = $this->transporter->recv();
+        if (! is_string($ret)) {
+            throw new RecvFailedException();
+        }
+
+        $data = $this->packer->unpack($ret);
+
+        if (array_key_exists('result', $data)) {
+            return $data['result'];
+        }
     }
 }

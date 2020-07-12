@@ -13,7 +13,7 @@ namespace Xin\JsonRPC\FpmClient;
 
 class DataFormatter
 {
-    public function formatRequest(string $path, string $params, string $id = null)
+    public function formatRequest(string $path, array $params, string $id = null)
     {
         return [
             'jsonrpc' => '2.0',
