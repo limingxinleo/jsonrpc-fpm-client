@@ -1,5 +1,5 @@
-# component-creater
+# JSONRPC FPM Client
 
 ```
-composer create-project hyperf/component-creater
+composer require limingxinleo/jsonrpc-fpm-client
 ```
