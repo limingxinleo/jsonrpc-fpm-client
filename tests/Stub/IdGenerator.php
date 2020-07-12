@@ -15,6 +15,7 @@ use Xin\JsonRPC\FpmClient\Client;
 
 /**
  * @method string id(string $id)
+ * @method void exception()
  */
 class IdGenerator extends Client
 {

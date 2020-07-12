@@ -14,4 +14,6 @@ namespace HyperfTest\Stub;
 interface IdGenerateInterface
 {
     public function id(string $id): string;
+
+    public function exception();
 }

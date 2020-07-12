@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace HyperfTest\Cases;
 
 use HyperfTest\Stub\IdGenerator;
+use Xin\JsonRPC\FpmClient\Exception\ServerException;
 use Xin\JsonRPC\FpmClient\Packer\JsonLengthPacker;
 use Xin\JsonRPC\FpmClient\Transporter\TransporterInterface;
 
@@ -47,5 +48,34 @@ class ClientTest extends AbstractTestCase
         $client = new IdGenerator('IdGenerateService', $transporter, $packer);
         $ret = $client->id($id);
         $this->assertSame('Hello Hyperf.', $ret);
+    }
+
+    public function testException()
+    {
+        $packer = new JsonLengthPacker();
+        $transporter = \Mockery::mock(TransporterInterface::class);
+        $transporter->shouldReceive('send')->withAnyArgs()->andReturnUsing(function ($string) use ($packer) {
+            $data = $packer->unpack($string);
+            $this->assertSame('/id_generate/exception', $data['method']);
+        });
+        $transporter->shouldReceive('recv')->andReturnUsing(function () use ($packer) {
+            return $packer->pack([
+                'jsonrpc' => '2.0',
+                'id' => uniqid(),
+                'error' => [
+                    'data' => [
+                        'code' => 500,
+                        'message' => 'Inner Server Error',
+                    ],
+                ],
+                'context' => [],
+            ]);
+        });
+        $client = new IdGenerator('IdGenerateService', $transporter, $packer);
+
+        $this->expectException(ServerException::class);
+        $this->expectExceptionCode(500);
+        $this->expectExceptionMessage('Inner Server Error');
+        $client->exception();
     }
 }

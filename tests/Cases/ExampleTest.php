@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace HyperfTest\Cases;
 
 use HyperfTest\Stub\IdGenerator;
+use Xin\JsonRPC\FpmClient\Exception\ServerException;
 use Xin\JsonRPC\FpmClient\Packer\JsonLengthPacker;
 use Xin\JsonRPC\FpmClient\Transporter\TcpTransporter;
 
@@ -28,7 +29,11 @@ class ExampleTest extends AbstractTestCase
         // $client = new IdGenerator('IdGenerateService', new TcpTransporter('127.0.0.1', 9502), new JsonLengthPacker());
         //
         // $ret = $client->id($id = uniqid());
-        //
         // $this->assertStringContainsString($id, $ret);
+        //
+        // $this->expectException(ServerException::class);
+        // $this->expectExceptionCode(500);
+        // $this->expectExceptionMessage('Inner Server Error');
+        // $client->exception();
     }
 }

@@ -13,6 +13,7 @@ namespace Xin\JsonRPC\FpmClient;
 
 use Hyperf\Contract\PackerInterface;
 use Xin\JsonRPC\FpmClient\Exception\RecvFailedException;
+use Xin\JsonRPC\FpmClient\Exception\ServerException;
 use Xin\JsonRPC\FpmClient\Transporter\TransporterInterface;
 
 abstract class Client
@@ -71,5 +72,7 @@ abstract class Client
         if (array_key_exists('result', $data)) {
             return $data['result'];
         }
+
+        throw new ServerException($data['error'] ?? []);
     }
 }
