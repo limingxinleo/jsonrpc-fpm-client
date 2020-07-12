@@ -20,18 +20,49 @@ class TcpTransporter implements TransporterInterface
      */
     protected $client;
 
+    /**
+     * @var string
+     */
+    protected $ip;
+
+    /**
+     * @var int
+     */
+    protected $port;
+
     public function __construct(string $ip, int $port)
+    {
+        $this->ip = $ip;
+        $this->port = $port;
+
+        $this->connect();
+    }
+
+    protected function connect()
     {
         if ($this->client) {
             fclose($this->client);
             unset($this->client);
         }
-        $client = stream_socket_client("tcp://{$ip}:{$port}");
+        $client = stream_socket_client("tcp://{$this->ip}:{$this->port}");
         if ($client === false) {
             throw new ConnectionException('Connect failed.');
         }
 
         $this->client = $client;
+    }
+
+    protected function close()
+    {
+        if ($this->client) {
+            fclose($this->client);
+            $this->client = null;
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
     }
 
     public function send(string $data)
