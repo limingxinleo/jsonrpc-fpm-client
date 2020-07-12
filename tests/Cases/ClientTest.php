@@ -13,7 +13,7 @@ namespace HyperfTest\Cases;
 
 use HyperfTest\Stub\IdGenerator;
 use Xin\JsonRPC\FpmClient\Packer\JsonLengthPacker;
-use Xin\JsonRPC\FpmClient\Transporter\TcpTransporter;
+use Xin\JsonRPC\FpmClient\Transporter\TransporterInterface;
 
 /**
  * @internal
@@ -21,12 +21,31 @@ use Xin\JsonRPC\FpmClient\Transporter\TcpTransporter;
  */
 class ClientTest extends AbstractTestCase
 {
+    protected function tearDown()
+    {
+        \Mockery::close();
+    }
+
     public function testSendAndRecv()
     {
-        $client = new IdGenerator('IdGenerateService', new TcpTransporter('127.0.0.1', 9502), new JsonLengthPacker());
-
-        $ret = $client->id($id = uniqid());
-
-        $this->assertStringContainsString($id, $ret);
+        $packer = new JsonLengthPacker();
+        $id = uniqid();
+        $transporter = \Mockery::mock(TransporterInterface::class);
+        $transporter->shouldReceive('send')->withAnyArgs()->andReturnUsing(function ($string) use ($packer, $id) {
+            $data = $packer->unpack($string);
+            $this->assertSame([$id], $data['params']);
+            $this->assertSame('/id_generate/id', $data['method']);
+        });
+        $transporter->shouldReceive('recv')->andReturnUsing(function () use ($packer) {
+            return $packer->pack([
+                'jsonrpc' => '2.0',
+                'id' => uniqid(),
+                'result' => 'Hello Hyperf.',
+                'context' => [],
+            ]);
+        });
+        $client = new IdGenerator('IdGenerateService', $transporter, $packer);
+        $ret = $client->id($id);
+        $this->assertSame('Hello Hyperf.', $ret);
     }
 }
