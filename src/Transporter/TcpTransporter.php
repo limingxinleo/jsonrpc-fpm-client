@@ -5,7 +5,7 @@ declare(strict_types=1);
  * This file is part of Hyperf.
  *
  * @link     https://www.hyperf.io
- * @document https://doc.hyperf.io
+ * @document https://hyperf.wiki
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
@@ -38,6 +38,21 @@ class TcpTransporter implements TransporterInterface
         $this->connect();
     }
 
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    public function send(string $data)
+    {
+        fwrite($this->client, $data);
+    }
+
+    public function recv()
+    {
+        return fread($this->client, 65535);
+    }
+
     protected function connect()
     {
         if ($this->client) {
@@ -58,20 +73,5 @@ class TcpTransporter implements TransporterInterface
             fclose($this->client);
             $this->client = null;
         }
-    }
-
-    public function __destruct()
-    {
-        $this->close();
-    }
-
-    public function send(string $data)
-    {
-        fwrite($this->client, $data);
-    }
-
-    public function recv()
-    {
-        return fread($this->client, 65535);
     }
 }
