@@ -2,6 +2,10 @@
 
 [![Build Status](https://travis-ci.com/limingxinleo/jsonrpc-fpm-client.svg?branch=master)](https://travis-ci.com/limingxinleo/jsonrpc-fpm-client)
 
+## 声明
+
+本组件已不再维护，请使用 [JET](https://github.com/hyperf/jet)
+
 ## 安装
 
 ```
